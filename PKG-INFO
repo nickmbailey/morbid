@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: morbid
-Version: 0.8.7.3
+Version: 0.8.7.4
 Summary: A Twisted-based publish/subscribe messaging server that uses the STOMP protocol
 Home-page: UNKNOWN
 Author: Michael Carter

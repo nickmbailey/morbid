@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='morbid',
-    version='0.8.7.3',
+    version='0.8.7.4',
     author='Michael Carter',
     author_email='CarterMichael@gmail.com',
     license='MIT License',
