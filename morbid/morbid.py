@@ -4,6 +4,7 @@ import mqsecurity
 from datetime import datetime
 from restq import RestQ
 from messagequeue import QueueError
+from mqsecurity import IConnector, Connector
 from error import error
 
 verbose = False
@@ -94,7 +95,12 @@ class StompProtocol(Protocol):
         self.transport.loseConnection()
 
     def read_connected(self, cmd, headers, body):
-        self.factory.restq.submit(self, cmd, headers, body).addCallback(getattr(self, 'frame_%s' % cmd))
+        def message_processed(*args):
+            if 'receipt' in headers:
+                self.sendFrame('RECEIPT', {'receipt-id': headers['receipt']}, '')
+        d = self.factory.restq.submit(self, cmd, headers, body)
+        d.addCallback(getattr(self, 'frame_%s' % cmd))
+        d.addCallback(message_processed)
 
     def frame_subscribe(self, (headers, body)):
         if "allow" in headers and headers["allow"] == "no":
@@ -113,7 +119,7 @@ class StompProtocol(Protocol):
         if "allow" in headers and headers["allow"] == "no":
             return
         try:
-            result = self.factory.mqm.send_message(self, headers['destination'], (headers, body))
+            self.factory.mqm.send_message(self, headers['destination'], (headers, body))
         except QueueError, err:
             self.sendFrame('ERROR',
                            {'message': self.get_message_code(err.code)},
